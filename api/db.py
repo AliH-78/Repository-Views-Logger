@@ -20,7 +20,7 @@ class DBHandle:
 
         for table_name in table_names:
             self.db_cursor.execute(f"SELECT * FROM {table_name}")
-            columns = list(column_data[0] for column_data in self.db_cursor.description)
+            columns = [column_data[0] for column_data in self.db_cursor.description]
             columns.remove("ORDER_ID")
 
             self.db_tables[table_name] = {}
