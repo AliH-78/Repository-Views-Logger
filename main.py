@@ -10,14 +10,22 @@ def log_repository_views(account, repository):
     db_handle.create_table("REPO_VIEWS", ("DATE", "VIEWS", "UNIQUES"))
 
     while True:
+        print("[i] Getting repository views...")
+
         view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
-        new_view_values = [(date, view_dict["view_count"], view_dict["unique_views"]) 
-                            for date, view_dict 
+        new_view_values = [(date, view_dict["view_count"], view_dict["unique_views"])
+                            for date, view_dict
                             in api.github.handle_traffic_information(account.get_view_count(repository)).items()]
         view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
-        
+
+        print("[i] Repository views has been handled.")
+        print("[i] Repository views are writing to database...")
+
         for view_value in view_values_to_write:
             db_handle.insert_value("REPO_VIEWS", view_value)
+
+        print("[i] Repository views are written.")
+        print("[i] Waiting for next day...")
 
         time.sleep(60 * 60 * 24)
 
@@ -26,27 +34,40 @@ def log_popular_files_views(account, repository):
     db_handle.create_table("FILE_VIEWS", ("FILE", "VIEWS", "UNIQUES"))
 
     while True:
+        print("[i] Getting repository files' views...")
+
         view_values = db_handle.read_value("FILE_VIEWS", many = 15, sort_reverse = True)
-        new_view_values = [(file, view_dict["view_count"], view_dict["unique_views"]) 
-                            for file, view_dict 
+        new_view_values = [(file, view_dict["view_count"], view_dict["unique_views"])
+                            for file, view_dict
                             in api.github.handle_popular_files_information(account.get_popular_files_views(repository)).items()]
         view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
-        
+
+        print("[i] Repository file views has been handled.")
+        print("[i] Repository file views are writing to database...")
+
         for view_value in view_values_to_write:
             db_handle.insert_value("FILE_VIEWS", view_value)
+
+        print("[i] Repository file views are written.")
+        print("[i] Waiting for next two week...")
 
         time.sleep(60 * 60 * 24 * 15)
 
 USERS_FOLDER = "users"
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4:
+        print("Usage: python main.py <token> <repository_name> <method>")
         exit(1)
-    
+
     github_account = api.github.GitHubAccount(token = sys.argv[1])
     selected_repository = github_account.select_repository(sys.argv[2])
 
-    log_repository_views(github_account, selected_repository)
+    if sys.argv[3].lower() == "log_repo_view":
+        log_repository_views(github_account, selected_repository)
+
+    elif sys.argv[3].lower() == "log_files_view":
+        log_popular_files_views(github_account, selected_repository)
 
 
 
