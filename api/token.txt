@@ -1,3 +1,3 @@
-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"
+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
 
 https://api.github.com/repos/MehmetKLl/
