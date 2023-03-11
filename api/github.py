@@ -36,6 +36,9 @@ class Repository(DictClass):
             return False
         
         return self.name == obj.name and self.owner["login"] == obj.owner["login"]
+   
+    def __hash__(self):
+        return None
 
 class GitHubUserInformation(DictClass):
     pass
@@ -56,6 +59,9 @@ class GitHubAccount:
         self.github_request_session = GitHubRequestSession(token = self.user_token)
 
         self.user_information = {}
+        self.user_repositories = {}
+        
+        
         self.query_user_token()
 
     def query_user_token(self):
