@@ -1,7 +1,6 @@
 import sys
 import os
 import time
-import multiprocessing
 import api.github
 import api.db
 
