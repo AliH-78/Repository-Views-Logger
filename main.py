@@ -1,6 +1,7 @@
 import sys
 import os
 import time
+import datetime
 import api.github
 import api.db
 
@@ -30,16 +31,19 @@ def log_repository_views(account, repository):
 
 def log_popular_files_views(account, repository):
     db_handle = api.db.DBHandle(f"{USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}file_views.db")
-    db_handle.create_table("FILE_VIEWS", ("FILE", "VIEWS", "UNIQUES"))
+    db_handle.create_table("FILE_VIEWS", ("START_DATE", "END_DATE", "FILE", "VIEWS", "UNIQUES"))
 
     while True:
         print("[i] Getting repository files' views...")
 
+        current_time = datetime.datetime.now()
+
         view_values = db_handle.read_value("FILE_VIEWS", many = 15, sort_reverse = True)
-        new_view_values = [(file, view_dict["view_count"], view_dict["unique_views"])
-                            for file, view_dict
-                            in api.github.handle_popular_files_information(account.get_popular_files_views(repository)).items()]
-        view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
+        new_view_values = [(datetime.datetime.strftime(current_time - datetime.timedelta(days = 15), "%Y-%m-%dT%H:%M:%SZ"),
+                            datetime.datetime.strftime(current_time, "%Y-%m-%dT%H:%M:%SZ"),
+                            file, view_dict["view_count"], view_dict["unique_views"]) for file, view_dict in 
+                            api.github.handle_popular_files_information(account.get_popular_files_views(repository)).items()]
+        view_values_to_write = sorted([i for i in new_view_values if (i[0], i[1]) not in [(i[0], i[1]) for i in view_values]])
 
         print("[i] Repository file views has been handled.")
         print("[i] Repository file views are writing to database...")
