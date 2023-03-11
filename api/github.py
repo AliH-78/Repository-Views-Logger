@@ -65,7 +65,7 @@ class GitHubAccount:
         self.query_user_token()
 
     def query_user_token(self):
-        user_api_request = self.github_request_session.get(f"https://api.github.com/user")
+        user_api_request = self.github_request_session.get("https://api.github.com/user")
         
         self.user_information = GitHubUserInformation(**user_api_request.json())
     
