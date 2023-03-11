@@ -16,7 +16,7 @@ class DBHandle:
         self.db_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name !='sqlite_sequence'")
         table_names = [i[0] for i in self.db_cursor.fetchall()]
 
-        self.db_tables = dict()
+        self.db_tables = {}
 
         for table_name in table_names:
             self.db_cursor.execute(f"SELECT * FROM {table_name}")
