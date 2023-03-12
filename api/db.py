@@ -46,7 +46,7 @@ class DBHandle:
         self.db_handle.commit()
 
     def read_value(self, table_name, columns = "*", many = 0, sort_reverse = False):
-        self.db_cursor.execute(f"SELECT {', '.join(self.db_tables[table_name]['columns']) if columns == '*' else ', '.join(columns)} " +
+        self.db_cursor.execute(f"SELECT {columns if columns == '*' else ', '.join(columns)} " +
                                f"FROM {table_name} " +
                                f"{'ORDER BY ORDER_ID DESC' if sort_reverse else ''}")
         return self.db_cursor.fetchmany(many)
