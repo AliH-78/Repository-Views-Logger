@@ -77,7 +77,7 @@ def main():
         elif exc.error_code // 100 == 5:
             print(f"{colorama.Fore.RED}A server-side error occured.")
 
-        exit(1)
+        sys.exit(1)
 
     if cmdline_arguments.log_repository_views and cmdline_arguments.log_popular_files_views:
         log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository), daemon = True)
@@ -116,11 +116,11 @@ def main():
 
     else:
         sys.stderr.write("Unsufficient argument.\n")
-        exit(1)
+        sys.exit(1)
 
     os.system("clear")
     print(f"{colorama.Fore.RED}Process terminated.")
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == "__main__":
