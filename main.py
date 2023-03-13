@@ -23,7 +23,7 @@ def log_repository_views(account, repository):
         view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
 
         utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views has been handled.")
-        utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are writting to database...")
+        utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are writting to database...")
 
         for view_value in view_values_to_write:
             db_handle.insert_value("REPO_VIEWS", view_value)
