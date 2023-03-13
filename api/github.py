@@ -24,8 +24,7 @@ class DictClass:
         self.kwargs = kwargs
 
         for key, value in self.kwargs.items():
-            setattr(self, key, value)
-            # setattr(self, key, value if not isinstance(value, dict) else DictClass(value))
+            setattr(self, key, value if not isinstance(value, dict) else DictClass(**value))
     
     def __dict__(self):
         return self.kwargs
@@ -36,7 +35,7 @@ class Repository(DictClass):
         if not isinstance(obj, type(self)):
             return False
         
-        return self.name == obj.name and self.owner["login"] == obj.owner["login"]
+        return self.name == obj.name and self.owner.login == obj.owner.login
    
     def __hash__(self):
         return None
