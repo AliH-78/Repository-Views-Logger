@@ -25,6 +25,7 @@ class DictClass:
 
         for key, value in self.kwargs.items():
             setattr(self, key, value)
+            # setattr(self, key, value if not isinstance(value, dict) else DictClass(value))
     
     def __dict__(self):
         return self.kwargs
