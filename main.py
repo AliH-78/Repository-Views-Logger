@@ -19,7 +19,7 @@ def log_repository_views(account, repository):
         view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
         new_view_values = [(date, view_dict["view_count"], view_dict["unique_views"])
                             for date, view_dict
-                            in api.github.handle_traffic_information(account.get_view_count(repository)).items()][:-1]
+                            in api.github.handle_traffic_information(account.get_view_count(repository)).items()]
         view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
 
         utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views has been handled.")
