@@ -14,7 +14,7 @@ def log_repository_views(account, repository):
     db_handle.create_table("REPO_VIEWS", ("DATE", "VIEWS", "UNIQUES"))
 
     while True:
-        utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Getting repository views...")
+        utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Getting repository views...")
 
         view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
         new_view_values = [(date, view_dict["view_count"], view_dict["unique_views"])
@@ -22,14 +22,14 @@ def log_repository_views(account, repository):
                             in api.github.handle_traffic_information(account.get_view_count(repository)).items()][:-1]
         view_values_to_write = sorted([i for i in new_view_values if i not in view_values])
 
-        utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views has been handled.")
+        utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views has been handled.")
         utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are writting to database...")
 
         for view_value in view_values_to_write:
             db_handle.insert_value("REPO_VIEWS", view_value)
 
-        utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are written.")
-        utils.console.print_log(module = "REPOSITORY VIEW LOGGER", message = "[i] Waiting for next day...")
+        utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are written.")
+        utils.console.print_module_message(module = "REPOSITORY VIEW LOGGER", message = "[i] Waiting for next day...")
 
         time.sleep(60 * 60 * 24)
 
@@ -38,7 +38,7 @@ def log_popular_files_views(account, repository):
     db_handle.create_table("FILE_VIEWS", ("START_DATE", "END_DATE", "FILE", "VIEWS", "UNIQUES"))
 
     while True:
-        utils.console.print_log(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Getting repository files' views...")
+        utils.console.print_module_message(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Getting repository files' views...")
 
         current_time = datetime.datetime.now()
 
@@ -51,14 +51,14 @@ def log_popular_files_views(account, repository):
                                        if (i[0].split("T")[0], i[1].split("T")[0]) not in
                                        [(i[0].split("T")[0], i[1].split("T")[0]) for i in view_values] or i[3] not in [i[3] for i in view_values]])
 
-        utils.console.print_log(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views has been handled.")
-        utils.console.print_log(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are writting to database...")
+        utils.console.print_module_message(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views has been handled.")
+        utils.console.print_module_message(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are writting to database...")
 
         for view_value in view_values_to_write:
             db_handle.insert_value("FILE_VIEWS", view_value)
 
-        utils.console.print_log(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are written.")
-        utils.console.print_log(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Waiting for next two weeks...")
+        utils.console.print_module_message(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are written.")
+        utils.console.print_module_message(module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Waiting for next two weeks...")
 
         time.sleep(60 * 60 * 24 * 15)
 
@@ -86,37 +86,25 @@ def main():
         log_repository_views_thread.start()
         log_popular_files_views_thread.start()
 
-        try:
-           input()
-
-        except KeyboardInterrupt:
-            pass
-
     elif cmdline_arguments.log_repository_views:
         log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository), daemon = True)
 
         log_repository_views_thread.start()
-
-        try:
-           input()
-
-        except KeyboardInterrupt:
-            pass
 
     elif cmdline_arguments.log_popular_files_views:
         log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository), daemon = True)
 
         log_popular_files_views_thread.start()
 
-        try:
-           input()
-
-        except KeyboardInterrupt:
-            pass
-
     else:
         sys.stderr.write("Unsufficient argument.\n")
         sys.exit(1)
+
+    try:
+       input()
+
+    except KeyboardInterrupt:
+        pass
 
     os.system("clear")
     print(f"{colorama.Fore.RED}Process terminated.")
