@@ -46,7 +46,7 @@ class GitHubUserInformation(DictClass):
 
 def handle_traffic_information(traffic_information):
     return {i["timestamp"] : {"view_count" : i["count"],
-                              "unique_views" : i["uniques"]} for i in traffic_information["views"]}
+                              "unique_views" : i["uniques"]} for i in traffic_information["views"][:-1]}
 
 def handle_popular_files_information(traffic_information):
     return {i["path"] : {"view_count" : i["count"],
