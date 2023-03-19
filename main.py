@@ -1,103 +1,141 @@
 import sys
 import os
 import time
-import datetime
 import argparse
 import threading
-import api.github
-import api.db
+import view_logger.github
+import view_logger.db
 import utils.console
+import utils.exceptions
+import utils.time
+import utils.constants
 import colorama
 
-def log_repository_views(account, repository):
-    db_handle = api.db.DBHandle(f"{USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}views.db")
-    db_handle.create_table("REPO_VIEWS", ("DATE", "VIEWS", "UNIQUES"))
 
-    while True:
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "REPOSITORY VIEW LOGGER", message = "[i] Getting repository views...")
+def log_repository_views(account, repository, at_exception = None, at_exception_args = tuple(), at_exception_kwargs = dict()):
 
-        view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
-        new_view_values = [(date, view_dict["view_count"], view_dict["unique_views"])
-                            for date, view_dict
-                            in api.github.handle_traffic_information(account.get_view_count(repository)).items()]
-        view_values_to_write = sorted([i for i in new_view_values if i[0] not in [i[0] for i in view_values]])
+    def _log_repository_views(account, repository):
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_NAME}")
+        db_handle.create_table("REPO_VIEWS", ("TIMESTAMP", "VIEWS", "UNIQUES"))
 
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views has been handled.")
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are writting to database...")
+        while True:
+            utils.console.repository_views_logger_message(repository, message = "[i] Getting repository views...")
 
-        for view_value in view_values_to_write:
-            db_handle.insert_value("REPO_VIEWS", view_value)
+            view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
+            new_view_values = account.get_view_count(repository)
+            view_values_to_write = [i for i in new_view_values if i[0] not in [i[0] for i in view_values]]
 
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "REPOSITORY VIEW LOGGER", message = "[i] Repository views are written.")
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "REPOSITORY VIEW LOGGER", message = "[i] Waiting for next day...")
+            utils.console.repository_views_logger_message(repository, message = "[i] Repository views has been handled.")
+            utils.console.repository_views_logger_message(repository, message = "[i] Repository views are writting to database...")
 
-        time.sleep(60 * 60 * 24)
+            for view_value in view_values_to_write:
+                db_handle.insert_value("REPO_VIEWS", view_value)
 
-def log_popular_files_views(account, repository):
-    db_handle = api.db.DBHandle(f"{USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}file_views.db")
-    db_handle.create_table("FILE_VIEWS", ("START_DATE", "END_DATE", "FILE", "VIEWS", "UNIQUES"))
+            utils.console.repository_views_logger_message(repository, message = "[i] Repository views are written.")
+            utils.console.repository_views_logger_message(repository, message = "[i] Waiting for next day...")
 
-    while True:
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Getting repository files' views...")
+            time.sleep(60 * 60 * 24)
+    
+    try:
+        return _log_repository_views(account, repository)
+    
+    except:
+        if not at_exception:
+            raise
+        
+        at_exception(*at_exception_args, **at_exception_kwargs)
 
-        current_time = datetime.datetime.now()
+def log_popular_files_views(account, repository, at_exception = None, at_exception_args = tuple(), at_exception_kwargs = dict()):
 
-        view_values = db_handle.read_value("FILE_VIEWS", many = 15, sort_reverse = True)
-        new_view_values = [(datetime.datetime.strftime(current_time - datetime.timedelta(days = 15), "%Y-%m-%dT%H:%M:%SZ"),
-                            datetime.datetime.strftime(current_time, "%Y-%m-%dT%H:%M:%SZ"),
-                            file, view_dict["view_count"], view_dict["unique_views"]) for file, view_dict in
-                            api.github.handle_popular_files_information(account.get_popular_files_views(repository)).items()]
-        view_values_to_write = sorted([i for i in new_view_values
-                                       if (i[0].split("T")[0], i[1].split("T")[0]) not in
-                                       [(i[0].split("T")[0], i[1].split("T")[0]) for i in view_values] or i[3] not in [i[3] for i in view_values]])
+    def _log_popular_files_views(account, repository):
+        db_handle = view_logger.db.DBHandle(f"{USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_NAME}")
+        db_handle.create_table("FILE_VIEWS", ("START_DATE_TIMESTAMP", "END_DATE_TIMESTAMP", "FILE", "VIEWS", "UNIQUES"))
 
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views has been handled.")
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are writting to database...")
+        while True:
+            utils.console.popular_files_views_logger_message(repository, message = "[i] Getting repository files' views...")
 
-        for view_value in view_values_to_write:
-            db_handle.insert_value("FILE_VIEWS", view_value)
+            new_view_values = account.get_popular_files_views(repository)
+            
+            current_time = utils.time.get_utc_timestamp()
+            last_log_date = db_handle.read_value("FILE_VIEWS", ("END_DATE_TIMESTAMP",), many = 1, sort_reverse = True)
+            last_log_date = current_time if not last_log_date else last_log_date[0][0]
 
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Repository file views are written.")
-        utils.console.print_module_message(repository_name = repository.name, repository_owner_name = repository.owner.login, module = "FILE VIEWS LOGGER", module_color = colorama.Fore.LIGHTCYAN_EX, message = "[i] Waiting for next two weeks...")
+            time_for_sleep = 60*60*24*15 - (current_time - last_log_date)
 
-        time.sleep(60 * 60 * 24 * 15)
+            if time_for_sleep <= 0:
+                utils.console.popular_files_views_logger_message(repository, message = "[i] Repository file views are writting to database...")
+
+                for new_view_value in new_view_values:
+                    db_handle.insert_value("FILE_VIEWS", new_view_value)
+            
+            if time_for_sleep > 0:
+                utils.console.popular_files_views_logger_message(repository, message = "[i] Checking any additional file different from database...")
+
+                for new_view_value in new_view_values:
+                    query_is_file_exists = db_handle.read_value("FILE_VIEWS", ("FILE",), condition = f"WHERE FILE = '{new_view_value[2]}'")
+
+                    if not query_is_file_exists:
+                        utils.console.popular_files_views_logger_message(repository, message = "[i] Different file view data found. Writing to database...")
+                        db_handle.insert_value("FILE_VIEWS", new_view_value)
+
+                utils.console.popular_files_views_logger_message(repository, message = f"[i] Waiting for {time_for_sleep//60//60//24} days...")
+
+                time.sleep(time_for_sleep)
+    
+    try:
+        return _log_popular_files_views(account, repository)
+    
+    except:
+        if not at_exception:
+            raise
+        
+        at_exception(*at_exception_args, **at_exception_kwargs)
+        
 
 def main():
     try:
-        github_account = api.github.GitHubAccount(token = cmdline_arguments.token)
+        github_account = view_logger.github.GitHubAccount(token = cmdline_arguments.token)
         selected_repository = github_account.select_repository(cmdline_arguments.repository_name)
 
-    except api.exceptions.GitHubRequestError as exc:
+    except view_logger.exceptions.GitHubRequestError as exc:
+        utils.console.error_message("An error occured while requesting to GitHub servers. More information available at log file.")
+
+        sys.exit(1)
+
+    except view_logger.exceptions.GitHubResponseError as exc:
         if exc.error_code in [401, 403]:
-            print(f"{colorama.Fore.RED}Token is invalid or token isn't authorized.")
+            utils.console.error_message("Token is invalid or token isn't authorized.")
+        
+        elif exc.error_code == 404:
+            utils.console.error_message("The requested page couldn't found.")
 
         elif exc.error_code // 100 == 3:
-            print(f"{colorama.Fore.RED}URL Redirection Error.")
+            utils.console.error_message("URL Redirection Error.")
 
         elif exc.error_code // 100 == 5:
-            print(f"{colorama.Fore.RED}A server-side error occured.")
+            utils.console.error_message("A server-side error occured.")
 
         sys.exit(1)
 
     if cmdline_arguments.log_repository_views and cmdline_arguments.log_popular_files_views:
-        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository), daemon = True)
-        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository), daemon = True)
+        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.log_repository_views_traceback, (selected_repository,)), daemon = True)
+        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.log_popular_files_views_traceback, (selected_repository,)), daemon = True)
 
         log_repository_views_thread.start()
         log_popular_files_views_thread.start()
 
     elif cmdline_arguments.log_repository_views:
-        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository), daemon = True)
+        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.log_repository_views_traceback, (selected_repository,)), daemon = True)
 
         log_repository_views_thread.start()
 
     elif cmdline_arguments.log_popular_files_views:
-        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository), daemon = True)
+        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.log_popular_files_views_traceback, (selected_repository,)), daemon = True)
 
         log_popular_files_views_thread.start()
 
     else:
-        sys.stderr.write("Not enough argument.\n")
+        utils.console.error_message("Not enough argument.")
         sys.exit(1)
 
     try:
@@ -107,7 +145,7 @@ def main():
         pass
 
     os.system("clear")
-    print(f"{colorama.Fore.RED}Process terminated.")
+    utils.console.error_message("Process terminated.")
     sys.exit(0)
 
 
