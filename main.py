@@ -155,7 +155,6 @@ def main():
 
 if __name__ == "__main__":
     colorama.init(autoreset = True)
-    USERS_FOLDER = "users"
 
     argument_parser = argparse.ArgumentParser(prog = "Repository Views Logger")
 
