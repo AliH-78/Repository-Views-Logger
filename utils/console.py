@@ -1,5 +1,4 @@
 import sys
-import datetime
 import colorama
 from . import time
 
