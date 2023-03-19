@@ -22,7 +22,7 @@ def string_to_timestamp(string, pattern):
 def github_date_string_to_timestamp(string):
     return string_to_timestamp(string, "%Y-%m-%dT%H:%M:%SZ")
 
-def to_seconds(months = 0, weeks = 0, days = 0, hours = 0, minutes = 0, seconds = 0):
+def to_seconds(weeks = 0, days = 0, hours = 0, minutes = 0, seconds = 0):
     return int(datetime.timedelta(weeks = weeks,
                                   days = days,
                                   hours = hours,
