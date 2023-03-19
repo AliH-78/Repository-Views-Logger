@@ -106,7 +106,7 @@ def main():
 
         sys.exit(1)
 
-    except view_logger.exceptions.GitHubResponseError:
+    except view_logger.exceptions.GitHubResponseError as exc:
         if exc.error_code in [401, 403]:
             utils.console.error_message("Token is invalid or token isn't authorized.")
         
