@@ -52,7 +52,7 @@ def log_popular_files_views(account, repository, at_exception = None, at_excepti
         at_exception_kwargs = {}
 
     def _log_popular_files_views(account, repository):
-        db_handle = view_logger.db.DBHandle(f"{USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_NAME}")
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_NAME}")
         db_handle.create_table("FILE_VIEWS", ("START_DATE_TIMESTAMP", "END_DATE_TIMESTAMP", "FILE", "VIEWS", "UNIQUES"))
 
         while True:
