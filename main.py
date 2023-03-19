@@ -43,7 +43,7 @@ def log_repository_views(account, repository, at_exception = None, at_exception_
         if not at_exception:
             raise
         
-        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_args else at_exception_args))
+        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_kwargs else at_exception_kwargs))
 
 def log_popular_files_views(account, repository, at_exception = None, at_exception_args = (), at_exception_kwargs = None):
     if at_exception_kwargs is None:
@@ -91,7 +91,7 @@ def log_popular_files_views(account, repository, at_exception = None, at_excepti
         if not at_exception:
             raise
         
-        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_args else at_exception_args))
+        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_kwargs else at_exception_kwargs))
         
 
 def main():
