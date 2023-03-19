@@ -49,11 +49,11 @@ class GitHubUserInformation(DictClass):
     pass
 
 def handle_traffic_information(traffic_information):
-    return tuple([(utils.time.github_date_string_to_timestamp(i["timestamp"]), i["count"], i["uniques"]) for i in traffic_information["views"][:-1]])
+    return tuple((utils.time.github_date_string_to_timestamp(i["timestamp"]), i["count"], i["uniques"]) for i in traffic_information["views"][:-1])
 
 def handle_popular_files_information(traffic_information):
-    return tuple([(utils.time.get_utc_timestamp() - utils.time.to_seconds(days = 15),
-                   utils.time.get_utc_timestamp(), i["path"], i["count"], i["uniques"]) for i in traffic_information])
+    return tuple((utils.time.get_utc_timestamp() - utils.time.to_seconds(days = 15),
+                  utils.time.get_utc_timestamp(), i["path"], i["count"], i["uniques"]) for i in traffic_information)
 
 class GitHubAccount:
     def __init__(self, **kwargs):
