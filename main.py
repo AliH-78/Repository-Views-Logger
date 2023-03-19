@@ -101,12 +101,12 @@ def main():
         github_account = view_logger.github.GitHubAccount(token = cmdline_arguments.token)
         selected_repository = github_account.select_repository(cmdline_arguments.repository_name)
 
-    except view_logger.exceptions.GitHubRequestError as exc:
+    except view_logger.exceptions.GitHubRequestError:
         utils.console.error_message("An error occured while requesting to GitHub servers. More information available at log file.")
 
         sys.exit(1)
 
-    except view_logger.exceptions.GitHubResponseError as exc:
+    except view_logger.exceptions.GitHubResponseError:
         if exc.error_code in [401, 403]:
             utils.console.error_message("Token is invalid or token isn't authorized.")
         
