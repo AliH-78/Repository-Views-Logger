@@ -57,7 +57,9 @@ def handle_popular_files_information(traffic_information):
 
 class GitHubAccount:
     def __init__(self, **kwargs):
-        assert "token" in kwargs, "Token isn't defined."
+        if "token" not in kwargs:
+            raise ValueError("Account token isn't defined.")
+            
         self.user_token = kwargs["token"]
         
         self.github_request_session = GitHubRequestSession(token = self.user_token)
