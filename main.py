@@ -12,9 +12,7 @@ import utils.constants
 import colorama
 
 
-def log_repository_views(account, repository, at_exception = None, at_exception_args = (), at_exception_kwargs = None):
-    if at_exception_kwargs is None:
-        at_exception_kwargs = {}
+def log_repository_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
     def _log_repository_views(account, repository):
         db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_NAME}")
@@ -45,7 +43,7 @@ def log_repository_views(account, repository, at_exception = None, at_exception_
         if not at_exception:
             raise
         
-        at_exception(*at_exception_args, **at_exception_kwargs)
+        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_args else at_exception_args))
 
 def log_popular_files_views(account, repository, at_exception = None, at_exception_args = (), at_exception_kwargs = None):
     if at_exception_kwargs is None:
@@ -93,7 +91,7 @@ def log_popular_files_views(account, repository, at_exception = None, at_excepti
         if not at_exception:
             raise
         
-        at_exception(*at_exception_args, **at_exception_kwargs)
+        at_exception(*(() if not at_exception_args else at_exception_args), **({} if not at_exception_args else at_exception_args))
         
 
 def main():
