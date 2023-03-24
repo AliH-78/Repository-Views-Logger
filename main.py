@@ -15,13 +15,13 @@ import colorama
 def log_repository_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
     def _log_repository_views(account, repository):
-        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_NAME}")
-        db_handle.create_table("REPO_VIEWS", ("TIMESTAMP", "VIEWS", "UNIQUES"))
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_FILE_NAME}")
+        db_handle.create_table(utils.constants.REPO_VIEWS_DB_TABLE_NAME, utils.constants.REPO_VIEWS_DB_COLUMNS)
 
         while True:
             utils.console.repository_views_logger_message(repository, message = "[i] Getting repository views...")
 
-            view_values = db_handle.read_value("REPO_VIEWS", many = 15, sort_reverse = True)
+            view_values = db_handle.read_value(utils.constants.REPO_VIEWS_DB_TABLE_NAME, many = 15, sort_reverse = True)
             new_view_values = account.get_view_count(repository)
             view_values_to_write = [i for i in new_view_values if i[0] not in [i[0] for i in view_values]]
 
@@ -29,7 +29,7 @@ def log_repository_views(account, repository, at_exception = None, at_exception_
             utils.console.repository_views_logger_message(repository, message = "[i] Repository views are writting to database...")
 
             for view_value in view_values_to_write:
-                db_handle.insert_value("REPO_VIEWS", view_value)
+                db_handle.insert_value(utils.constants.REPO_VIEWS_DB_TABLE_NAME, view_value)
 
             utils.console.repository_views_logger_message(repository, message = "[i] Repository views are written.")
             utils.console.repository_views_logger_message(repository, message = "[i] Waiting for next day...")
@@ -48,8 +48,8 @@ def log_repository_views(account, repository, at_exception = None, at_exception_
 def log_popular_files_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
     def _log_popular_files_views(account, repository):
-        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_NAME}")
-        db_handle.create_table("FILE_VIEWS", ("START_DATE_TIMESTAMP", "END_DATE_TIMESTAMP", "FILE", "VIEWS", "UNIQUES"))
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_FILE_NAME}")
+        db_handle.create_table(utils.constants.FILE_VIEWS_DB_TABLE_NAME, utils.constants.FILE_VIEWS_DB_COLUMNS)
 
         while True:
             utils.console.popular_files_views_logger_message(repository, message = "[i] Getting repository files' views...")
@@ -57,7 +57,7 @@ def log_popular_files_views(account, repository, at_exception = None, at_excepti
             new_view_values = account.get_popular_files_views(repository)
             
             current_time = utils.time.get_utc_timestamp()
-            last_log_date = db_handle.read_value("FILE_VIEWS", ("END_DATE_TIMESTAMP",), many = 1, sort_reverse = True)
+            last_log_date = db_handle.read_value(utils.constants.FILE_VIEWS_DB_TABLE_NAME, ("END_DATE_TIMESTAMP",), many = 1, sort_reverse = True)
             last_log_date = current_time if not last_log_date else last_log_date[0][0]
 
             time_for_sleep = 60*60*24*15 - (current_time - last_log_date)
@@ -66,17 +66,17 @@ def log_popular_files_views(account, repository, at_exception = None, at_excepti
                 utils.console.popular_files_views_logger_message(repository, message = "[i] Repository file views are writting to database...")
 
                 for new_view_value in new_view_values:
-                    db_handle.insert_value("FILE_VIEWS", new_view_value)
+                    db_handle.insert_value(utils.constants.FILE_VIEWS_DB_TABLE_NAME, new_view_value)
             
             if time_for_sleep > 0:
                 utils.console.popular_files_views_logger_message(repository, message = "[i] Checking any additional file different from database...")
 
                 for new_view_value in new_view_values:
-                    query_is_file_exists = db_handle.read_value("FILE_VIEWS", ("FILE",), condition = f"WHERE FILE = '{new_view_value[2]}'")
+                    query_is_file_exists = db_handle.read_value(utils.constants.FILE_VIEWS_DB_TABLE_NAME, ("FILE",), condition = f"WHERE FILE = '{new_view_value[2]}'")
 
                     if not query_is_file_exists:
                         utils.console.popular_files_views_logger_message(repository, message = "[i] Different file view data found. Writing to database...")
-                        db_handle.insert_value("FILE_VIEWS", new_view_value)
+                        db_handle.insert_value(utils.constants.FILE_VIEWS_DB_TABLE_NAME, new_view_value)
 
                 utils.console.popular_files_views_logger_message(repository, message = f"[i] Waiting for {time_for_sleep//60//60//24} days...")
 
