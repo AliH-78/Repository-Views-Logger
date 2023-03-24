@@ -98,22 +98,12 @@ def main():
         selected_repository = github_account.select_repository(cmdline_arguments.repository_name)
 
     except view_logger.exceptions.GitHubRequestError:
-        utils.console.error_message("An error occured while requesting to GitHub servers. More information available at log file.")
+        utils.exceptions.log_request_traceback()
 
         sys.exit(1)
 
     except view_logger.exceptions.GitHubResponseError as exc:
-        if exc.error_code in [401, 403]:
-            utils.console.error_message("Token is invalid or token isn't authorized.")
-        
-        elif exc.error_code == 404:
-            utils.console.error_message("The requested page couldn't found.")
-
-        elif exc.error_code // 100 == 3:
-            utils.console.error_message("URL Redirection Error.")
-
-        elif exc.error_code // 100 == 5:
-            utils.console.error_message("A server-side error occured.")
+        utils.exceptions.log_response_error_traceback(exc)
 
         sys.exit(1)
 
@@ -144,7 +134,7 @@ def main():
     except KeyboardInterrupt:
         pass
 
-    os.system("clear")
+    utils.console.clear()
     utils.console.error_message("Process terminated.")
     sys.exit(0)
 

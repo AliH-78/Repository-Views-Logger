@@ -1,6 +1,7 @@
 import sys
+import os
 import colorama
-from . import time
+from . import time, constants
 
 def module_info(repository, module, message, date_color = colorama.Fore.WHITE, module_color = colorama.Fore.LIGHTBLACK_EX, message_color = colorama.Fore.WHITE, with_date = True):
     return sys.stdout.write(f"{colorama.Fore.LIGHTBLACK_EX}[{repository.owner.login}]{colorama.Fore.LIGHTBLACK_EX}[{repository.name}] {date_color}[{time.get_string_date(system_time = True) if with_date else ''}] {module_color}[{module}] {message_color}{message}\n")
@@ -22,3 +23,6 @@ def popular_files_views_logger_error(repository, message, message_color = colora
 
 def error_message(error_text, error_color = colorama.Fore.RED):
     return sys.stderr.write(f"{error_color}{error_text}\n")
+
+def clear():
+    return os.system(constants.CLEAR_COMMAND)
