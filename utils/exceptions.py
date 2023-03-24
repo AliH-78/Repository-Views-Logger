@@ -11,7 +11,7 @@ def log_traceback(filename):
     traceback_log.close()
 
 def handle_request_error_traceback():
-    utils.console.error_message("An error occured while requesting to GitHub servers. More information available at log file.")
+    console.error_message("An error occured while requesting to GitHub servers. More information available at log file.")
 
     log_traceback("REQUEST_ERR")
 
