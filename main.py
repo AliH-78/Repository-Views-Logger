@@ -98,29 +98,29 @@ def main():
         selected_repository = github_account.select_repository(cmdline_arguments.repository_name)
 
     except view_logger.exceptions.GitHubRequestError:
-        utils.exceptions.log_request_traceback()
+        utils.exceptions.handle_request_error_traceback()
 
         sys.exit(1)
 
     except view_logger.exceptions.GitHubResponseError as exc:
-        utils.exceptions.log_response_error_traceback(exc)
+        utils.exceptions.handle_response_error_traceback(exc)
 
         sys.exit(1)
 
     if cmdline_arguments.log_repository_views and cmdline_arguments.log_popular_files_views:
-        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.log_repository_views_traceback, (selected_repository,)), daemon = True)
-        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.log_popular_files_views_traceback, (selected_repository,)), daemon = True)
+        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.handle_repository_views_exception_traceback, (selected_repository,)), daemon = True)
+        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.handle_popular_files_views_exception_traceback, (selected_repository,)), daemon = True)
 
         log_repository_views_thread.start()
         log_popular_files_views_thread.start()
 
     elif cmdline_arguments.log_repository_views:
-        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.log_repository_views_traceback, (selected_repository,)), daemon = True)
+        log_repository_views_thread = threading.Thread(target = log_repository_views, args = (github_account, selected_repository, utils.exceptions.handle_repository_views_exception_traceback, (selected_repository,)), daemon = True)
 
         log_repository_views_thread.start()
 
     elif cmdline_arguments.log_popular_files_views:
-        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.log_popular_files_views_traceback, (selected_repository,)), daemon = True)
+        log_popular_files_views_thread = threading.Thread(target = log_popular_files_views, args = (github_account, selected_repository, utils.exceptions.handle_popular_files_views_exception_traceback, (selected_repository,)), daemon = True)
 
         log_popular_files_views_thread.start()
 
