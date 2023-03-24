@@ -3,7 +3,7 @@ import os
 from . import console, log, time, constants
 
 def log_module_traceback(module, repository):
-    log_traceback("{module} {repository.owner.login} {repository.name}")
+    log_traceback(f"{module} {repository.owner.login} {repository.name}")
 
 def log_traceback(filename):
     traceback_log = log.Log(filename = f"{constants.LOG_FOLDER}{os.sep}{filename} {time.get_string_date(for_file = True, system_time = True)}.log") 
