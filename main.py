@@ -9,8 +9,6 @@ import utils.console
 import utils.exceptions
 import utils.time
 import utils.constants
-import colorama
-
 
 def log_repository_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
