@@ -15,7 +15,7 @@ import colorama
 def log_repository_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
     def _log_repository_views(account, repository):
-        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_FILE_NAME}")
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{repository.owner.login}{os.sep}{repository.name}{os.sep}{utils.constants.REPO_VIEWS_DB_FILE_NAME}")
         db_handle.create_table(utils.constants.REPO_VIEWS_DB_TABLE_NAME, utils.constants.REPO_VIEWS_DB_COLUMNS)
 
         while True:
@@ -48,7 +48,7 @@ def log_repository_views(account, repository, at_exception = None, at_exception_
 def log_popular_files_views(account, repository, at_exception = None, at_exception_args = None, at_exception_kwargs = None):
 
     def _log_popular_files_views(account, repository):
-        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{account.user_information.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_FILE_NAME}")
+        db_handle = view_logger.db.DBHandle(f"{utils.constants.USERS_FOLDER}{os.sep}{repository.owner.login}{os.sep}{repository.name}{os.sep}{utils.constants.FILE_VIEWS_DB_FILE_NAME}")
         db_handle.create_table(utils.constants.FILE_VIEWS_DB_TABLE_NAME, utils.constants.FILE_VIEWS_DB_COLUMNS)
 
         while True:
@@ -125,7 +125,7 @@ def main():
         log_popular_files_views_thread.start()
 
     else:
-        utils.console.error_message("Not enough argument.")
+        utils.console.error_message("Not enough argument. At least \"log_repository_views\" or \"log_popular_files_views\" argument should be sent.")
         sys.exit(1)
 
     try:
@@ -140,14 +140,12 @@ def main():
 
 
 if __name__ == "__main__":
-    colorama.init(autoreset = True)
-
     argument_parser = argparse.ArgumentParser(prog = "Repository Views Logger")
 
-    argument_parser.add_argument("--token", required = True)
-    argument_parser.add_argument("--repository-name", required = True)
-    argument_parser.add_argument("--log-repository-views", action = "store_true")
-    argument_parser.add_argument("--log-popular-files-views", action = "store_true")
+    argument_parser.add_argument("--token", help = "GitHub user token for logging operations.", required = True)
+    argument_parser.add_argument("--repository-name", help = "Repository name which is its traffic datas going to be logged.", required = True)
+    argument_parser.add_argument("--log-repository-views", help = "Log specified repository's views.", action = "store_true")
+    argument_parser.add_argument("--log-popular-files-views", help = "Log specified repository's popular file views.", action = "store_true")
 
     cmdline_arguments = argument_parser.parse_args()
 
