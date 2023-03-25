@@ -84,7 +84,7 @@ class GitHubAccount:
         return self.user_repositories
     
     def select_repository(self, repository_name):
-        repository_query_request =  self.github_request_session.get(f"https://api.github.com/repos/{self.user_information.login}/{repository_name}")
+        repository_query_request =  self.github_request_session.get(f"https://api.github.com/repos/{repository_name}")
         
         return Repository(**repository_query_request.json())
     
