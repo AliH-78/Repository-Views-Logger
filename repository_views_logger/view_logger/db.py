@@ -1,9 +1,17 @@
 import sqlite3
 import os
+from .exceptions import DBFileNotFoundException
 
 class DBHandle:
-    def __init__(self, file_path):
+    def __init__(self, file_path, **flags):
         self.db_file_path = file_path
+        self.flags = {"if_not_exists": "silent" if "if_not_exists" not in flags else flags["if_not_exists"]}
+
+        if self.flags["if_not_exists"].lower() not in ["silent", "raise"]:
+            raise ValueError(f"Invalid argument \"{self.flags['if_not_exists']}\"")
+
+        if not os.path.exists(self.db_file_path) and self.flags["if_not_exists"] == "raise":
+            raise DBFileNotFoundException(self.db_file_path)
 
         os.makedirs(os.path.dirname(self.db_file_path), exist_ok = True)
 

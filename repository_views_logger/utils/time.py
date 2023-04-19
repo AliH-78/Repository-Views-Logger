@@ -19,6 +19,12 @@ def to_timestamp(datetime_object):
 def string_to_timestamp(string, pattern):
     return to_timestamp(datetime.datetime.strptime(string, pattern))
 
+def timestamp_to_string(timestamp, pattern):
+    return datetime.datetime.strftime(datetime.datetime.fromtimestamp(timestamp), pattern)
+
+def timestamp_to_table_string(timestamp):
+    return timestamp_to_string(timestamp, constants.TABLE_DATE_PATTERN)
+
 def github_date_string_to_timestamp(string):
     return string_to_timestamp(string, "%Y-%m-%dT%H:%M:%SZ")
 

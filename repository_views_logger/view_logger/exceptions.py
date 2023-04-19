@@ -7,3 +7,5 @@ class GitHubResponseError(Exception):
 
         super().__init__(message)
         
+class DBFileNotFoundException(Exception):
+    pass
